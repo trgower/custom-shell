@@ -8,6 +8,8 @@
 char** splitString(char*, int*);
 void execmd(int, char**);
 
+extern char** environ;
+
 int main(int argc, char** argv) {
   
   int running = 1;
@@ -55,7 +57,7 @@ void execmd(int argc, char** argv) {
   
   if (cpid >= 0) {
     if (cpid == 0) { // child
-      execv(argv[0], argv);
+      execve(argv[0], argv, environ);
       exit(0);
     } else { // parent
       wait(NULL); // wait for all child processes to finish
