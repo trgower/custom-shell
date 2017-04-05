@@ -12,7 +12,8 @@
 #include <time.h>
 
 int l_option = 0;
-char currentdir[] = "."; 
+char currentdir[] = "."; // This might be better if you retrieve it from PWD in the
+                         // environment variables. 
 char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"};
 
 int filter(const struct dirent *ent) {
@@ -67,7 +68,6 @@ void print(const char* name, int byte_pad) {
     printf(":%.2d", t->tm_min);
     printf(" %s", name);
     printf("\n");
-    
   } else {
     printf("%s  ", name);
   }
@@ -77,7 +77,6 @@ int main(int argc, char** argv) {
   
   // Get options yo
   int c;
-  int options_read = 0;
   while (1) {
     c = getopt(argc, argv, "l");
     if (c == -1) break; // done reading options
@@ -85,26 +84,33 @@ int main(int argc, char** argv) {
     switch (c) {
       case 'l':
         l_option = 1;
-        options_read++;
         break;
     }
   }
   
+  // This sets the ordering for alphasort
   setlocale(LC_ALL, "");
   
   DIR* dirhandle;
   struct dirent** list = NULL;
   int n, fd;
+  
   char* dir;
   if (argv[optind] == NULL) dir = currentdir;
   else dir = argv[optind];
   
+  // Scan, filter, and sort all directories and files and put them in list
   n = scandir(dir, &list, filter, alphasort);
   
-  if (n == -1 && errno == ENOTDIR) {
-    print(dir, 0);
-    if (!l_option) printf("\n");
-    return 0;
+  // If it is not a directory, it's probably a file
+  if (n == -1) {
+    if (errno == ENOTDIR) {
+      print(dir, 0);
+      if (!l_option) printf("\n");
+      return 0;
+    }
+    perror("myls");
+    return errno;
   }
   
   dirhandle = opendir(dir);
@@ -115,6 +121,7 @@ int main(int argc, char** argv) {
   if (l_option) 
     printf("total %d\n", gettotalblocks(list, n));
   
+  // make it look pretty
   int byte_pad = getmaxdigit_size(list, n);
   
   for (int i = 0; i < n; i++)
