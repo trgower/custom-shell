@@ -46,7 +46,7 @@ void print(const char* name, int byte_pad) {
   if (stat(name, &info) == 0 && l_option) {
     struct passwd* pw = getpwuid(info.st_uid);
     struct group* g = getgrgid(info.st_gid);
-    struct tm* t = localtime(&info.st_atime);
+    struct tm* t = localtime(&info.st_mtime);
     printf(S_ISDIR(info.st_mode) ? "d" : "-");
     printf(info.st_mode & S_IRUSR ? "r" : "-");
     printf(info.st_mode & S_IWUSR ? "w" : "-");
@@ -57,24 +57,15 @@ void print(const char* name, int byte_pad) {
     printf(info.st_mode & S_IROTH ? "r" : "-");
     printf(info.st_mode & S_IWOTH ? "w" : "-");
     printf(info.st_mode & S_IXOTH ? "x" : "-");
-    printf(" "); // format better mmk
-    printf("%ld", info.st_nlink);
-    printf(" "); // format better mmk
-    printf("%s", pw->pw_name);
-    printf(" "); // format better mmk
-    printf("%s", g->gr_name);
-    printf(" "); // format better mmk
-    printf("%*ld", byte_pad, info.st_size);
-    printf(" "); // format better mmk
-    printf("%s", months[t->tm_mon]);
-    printf(" "); // format better mmk
-    printf("%2d", t->tm_mday);
-    printf(" "); // format better mmk
-    printf("%.2d", t->tm_hour);
-    printf(":"); // format better mmk
-    printf("%.2d", t->tm_min);
-    printf(" "); // format better mmk
-    printf("%s", name);
+    printf(" %ld", info.st_nlink);
+    printf(" %s", pw->pw_name);
+    printf(" %s", g->gr_name);
+    printf(" %*ld", byte_pad, info.st_size);
+    printf(" %s", months[t->tm_mon]);
+    printf(" %2d", t->tm_mday);
+    printf(" %.2d", t->tm_hour);
+    printf(":%.2d", t->tm_min);
+    printf(" %s", name);
     printf("\n");
     
   } else {
