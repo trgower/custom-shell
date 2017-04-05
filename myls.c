@@ -11,7 +11,8 @@
 #include <grp.h>
 #include <time.h>
 
-int l_option = 1;
+int l_option = 0;
+char currentdir[] = "."; 
 char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"};
 
 int filter(const struct dirent *ent) {
@@ -19,6 +20,14 @@ int filter(const struct dirent *ent) {
     return 0;
   
   return 1;
+}
+
+int gettotalblocks(struct dirent** list, int n) {
+  int total = 0;
+  struct stat info;
+  for (int i = 0; i < n && stat(list[i]->d_name, &info) == 0; i++)
+    total += info.st_blocks / 2;
+  return total;
 }
 
 void print(const char* name) {
@@ -63,14 +72,31 @@ void print(const char* name) {
 }
 
 int main(int argc, char** argv) {
+  
+  // Get options yo
+  int c;
+  int options_read = 0;
+  while (1) {
+    c = getopt(argc, argv, "l");
+    if (c == -1) break; // done reading options
+    
+    switch (c) {
+      case 'l':
+        l_option = 1;
+        options_read++;
+        break;
+    }
+  }
+  
   setlocale(LC_ALL, "");
   
   DIR* dirhandle;
   struct dirent** list = NULL;
   int n, fd;
-  char* dir = argv[1]; // for now
+  char* dir;
+  if (argv[optind] == NULL) dir = currentdir;
+  else dir = argv[optind];
   
-  // scandir will return -1 if there are errors
   n = scandir(dir, &list, filter, alphasort);
   
   if (n == -1 && errno == ENOTDIR) {
@@ -82,8 +108,9 @@ int main(int argc, char** argv) {
   dirhandle = opendir(dir);
   
   if (dirhandle)
-    fd = dirfd(dirhandle);
+    fd = dirfd(dirhandle); // use this for...well I don't know
   
+  if (l_option) printf("total %d\n", gettotalblocks(list, n));
   for (int i = 0; i < n; i++)
     print(list[i]->d_name);
   
