@@ -6,6 +6,7 @@
 #include <string.h>
 
 char** splitString(char*, int*);
+int mycd(char*);
 void execmd(int, char**);
 
 extern char** environ;
@@ -70,9 +71,13 @@ int main(int argc, char** argv) {
       } else if(access(strcat(usr_bin, nargv[0]), X_OK) == 0) { // check /usr/bin
         nargv[0] = usr_bin;
         execmd(nargc, nargv);
-      } else if (!strcmp(nargv[0], "exit")) {
-        running = 0; // maybe do some shutdown stuff after
-      } else if (!strcmp(nargv[0], "pipetest")) {
+      } else if (strcmp(nargv[0], "mycd") == 0) {
+        mycd(nargv[1]); // check if NULL inside mycd, if it is chdir to $HOME
+      } else if (strcmp(nargv[0], "mypwd") == 0) {
+        printf("%s\n", getenv("PWD")); // i guess that's it lol
+      } else if (strcmp(nargv[0], "exit") == 0) {
+        running = 0;
+      } else if (strcmp(nargv[0], "pipetest") == 0) {
         pipetest();
       } else {
         printf("%s: command not found\n", nargv[0]);
@@ -120,5 +125,9 @@ char** splitString(char* str, int* strc) {
   *strc = n;
   
   return ret;
+}
+
+int mycd(char* dir) {
+  // do chdir here
 }
 
