@@ -10,6 +10,40 @@ void execmd(int, char**);
 
 extern char** environ;
 
+void pipetest() {
+  int fd[2];
+  pipe(fd);
+  
+  if (fork() == 0) {
+    dup2(fd[STDOUT_FILENO], STDOUT_FILENO);
+    close(fd[STDIN_FILENO]);
+    close(fd[STDOUT_FILENO]);
+    
+    char* prog1[] = {"myls", "-l", 0};
+    execve(prog1[0], prog1, environ);
+    perror("myls pipe");
+    exit(1);
+  }
+  
+  if (fork() == 0) {
+    dup2(fd[STDIN_FILENO], STDIN_FILENO);
+    close(fd[STDOUT_FILENO]);
+    close(fd[STDIN_FILENO]);
+    
+    char* prog2[] = {"/bin/grep", "rwx", 0};
+    execve(prog2[0], prog2, environ);
+    perror("grep pipe");
+    exit(1);
+  }
+  
+  close(fd[STDIN_FILENO]);
+  close(fd[STDOUT_FILENO]);
+  wait(0);
+  wait(0);
+  
+  // well... it works, finally. Now we just need to parse | in the command line
+}
+
 int main(int argc, char** argv) {
   
   int running = 1;
@@ -38,6 +72,8 @@ int main(int argc, char** argv) {
         execmd(nargc, nargv);
       } else if (!strcmp(nargv[0], "exit")) {
         running = 0; // maybe do some shutdown stuff after
+      } else if (!strcmp(nargv[0], "pipetest")) {
+        pipetest();
       } else {
         printf("%s: command not found\n", nargv[0]);
       }
