@@ -10,6 +10,7 @@ int mycat(int inFile, int outFile){
     while ((numBytes = read(inFile, buffer, sizeof(buffer))) > 0){
         if (write(outFile, buffer, numBytes) != numBytes)   //we are filling buffer with stuff from file and 
 			return -1;										//sending to output
+			printf("line\n");
     }
     if(numBytes < 0)
 		return (-1);

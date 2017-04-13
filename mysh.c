@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     char t_cmd_buf[512]; // temporary buffer to preserve cmd_buf
     char bin[] = "/bin/";
     char usr_bin[] = "/usr/bin/";
-    int nargc = 0;
+    int tokc = 0;
     
     printf("mysh $ ");
     fgets(cmd_buf, 512, stdin);
@@ -61,29 +61,29 @@ int main(int argc, char** argv) {
     
     if (strcmp(cmd_buf, "") != 0) {
       
-      char** nargv = splitString(strcpy(t_cmd_buf, cmd_buf), &nargc);
+      char** tokv = splitString(strcpy(t_cmd_buf, cmd_buf), &tokc);
       
-      if (access(nargv[0], X_OK) == 0) { // if the command is in current folder
-        execmd(nargc, nargv);
-      } else if(access(strcat(bin, nargv[0]), X_OK) == 0) { // check /bin
-        nargv[0] = bin;
-        execmd(nargc, nargv);
-      } else if(access(strcat(usr_bin, nargv[0]), X_OK) == 0) { // check /usr/bin
-        nargv[0] = usr_bin;
-        execmd(nargc, nargv);
-      } else if (strcmp(nargv[0], "mycd") == 0) {
-        mycd(nargv[1]); // check if NULL inside mycd, if it is chdir to $HOME
-      } else if (strcmp(nargv[0], "mypwd") == 0) {
+      if (access(tokv[0], X_OK) == 0) { // if the command is in current folder
+        execmd(tokc, tokv);
+      } else if(access(strcat(bin, tokv[0]), X_OK) == 0) { // check /bin
+        tokv[0] = bin;
+        execmd(tokc, tokv);
+      } else if(access(strcat(usr_bin, tokv[0]), X_OK) == 0) { // check /usr/bin
+        tokv[0] = usr_bin;
+        execmd(tokc, tokv);
+      } else if (strcmp(tokv[0], "mycd") == 0) {
+        mycd(tokv[1]); // check if NULL inside mycd, if it is chdir to $HOME
+      } else if (strcmp(tokv[0], "mypwd") == 0) {
         printf("%s\n", getenv("PWD")); // i guess that's it lol
-      } else if (strcmp(nargv[0], "exit") == 0) {
+      } else if (strcmp(tokv[0], "exit") == 0) {
         running = 0;
-      } else if (strcmp(nargv[0], "pipetest") == 0) {
+      } else if (strcmp(tokv[0], "pipetest") == 0) {
         pipetest();
       } else {
-        printf("%s: command not found\n", nargv[0]);
+        printf("%s: command not found\n", tokv[0]);
       }
       
-      free(nargv);
+      free(tokv);
       
     }
   }
