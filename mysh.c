@@ -126,8 +126,14 @@ char** splitString(char* str, int* strc) {
   
   return ret;
 }
-
+//implemented mycd, however it is not impacting mysh
 int mycd(char* dir) {
-  // do chdir here
+	int ret;
+	char *directory = dir;
+	ret = chdir(directory);
+	if(ret == 0){
+		return 0;
+	}
+	return 1;
 }
 
