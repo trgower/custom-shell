@@ -83,9 +83,9 @@ int getmaxdigit_links(char* dir, struct dirent** list, int n) {
   return max;
 }
 
-void print(char* path, int byte_pad, int link_pad) {
+void print(char* path, int byte_pad, int link_pad, int num, int it) {
   struct stat info;
-  char* name;
+  char* name = path;
   for (int i = strlen(path) - 2; i >= 0; i--) {
     if (path[i] == '/') {
       name = path + i + 1;
@@ -117,7 +117,8 @@ void print(char* path, int byte_pad, int link_pad) {
     printf(" %s", name);
     printf("\n");
   } else {
-    printf("%s  ", name);
+    printf("%s", name);
+    if (it < (num-1)) printf("  ");
   }
 }
 
@@ -156,7 +157,7 @@ int main(int argc, char** argv) {
   // If it is not a directory, it's probably a file
   if (n == -1) {
     if (errno == ENOTDIR) {
-      print(dir, 0, 0);
+      print(dir, 0, 0, 1, 0);
       if (!l_option) printf("\n");
       return 0;
     }
@@ -183,7 +184,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < n; i++) {
     char t_path_buf[512];
     strcpy(t_path_buf, path_buf);
-    print(strcat(t_path_buf, list[i]->d_name), byte_pad, link_pad);
+    print(strcat(t_path_buf, list[i]->d_name), byte_pad, link_pad, n, i);
   }
   
   if (!l_option) printf("\n");
