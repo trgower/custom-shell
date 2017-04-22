@@ -161,7 +161,8 @@ int main(int argc, char** argv) {
       if (!l_option) printf("\n");
       return 0;
     }
-    perror("myls");
+    fprintf(stderr, "myls: ");
+    perror(dir);
     return errno;
   }
   
