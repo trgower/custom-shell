@@ -51,9 +51,10 @@ int main(int argc, char** argv) {
     if (strcmp(cmd_buf, "") != 0) {
       int n = 0;
       struct command* cmd = interpretline(cmd_buf, &n);
-      if (n > 0)
+      if (cmd != 0 && n > 0) {
         run(n, cmd);
-      cleanup(n, cmd);
+        cleanup(n, cmd);
+      }
     }
   }
   return 0;
