@@ -174,10 +174,12 @@ int mycd(char* dir) {
   int ret;
   char *directory = dir;
   ret = chdir(directory);
-  if(ret == 0){
+  if (ret == 0) {
     return 0;
+  } else {
+    fprintf(stderr, "mysh: ");
+    perror("mycd");
   }
-  return 1;
 }
 
 char** splitpath() {
