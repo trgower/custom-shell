@@ -34,7 +34,7 @@ void copyFile(char* infile, char* outfile)
     } else {
       memset(temp, 0, strlen(temp)); // for recursion! yay c!
       while(read(in, temp, sizeof(temp))) {
-        write(out, temp, strlen(temp) - 1);
+        write(out, temp, strlen(temp));
         memset(temp, 0, strlen(temp));
       }
     }

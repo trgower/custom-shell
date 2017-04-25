@@ -21,7 +21,7 @@ void getarg(char*, char**, int, int, int);
 void exe(struct command*, pid_t pid);
 void proc(int, int, struct command);
 void run(int, struct command*);
-void cleanup(int, struct command*);
+void cleanup(struct command*);
 int cmdarg(struct command);
 struct command* interpretline(char*, int*);
 int istokterm(char);
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
       struct command* cmd = interpretline(cmd_buf, &n);
       if (cmd != 0 && n > 0) {
         run(n, cmd);
-        cleanup(n, cmd);
+        cleanup(cmd);
       }
     }
   }
@@ -152,29 +152,22 @@ struct command* interpretline(char* cmd_buf, int* num_cmds) {
     exit(0);
   } else if (strcmp(cmd[*num_cmds - 1].argv[0], "mycd") == 0) {
     mycd(cmd[*num_cmds - 1].argv[1]);
-    cleanup(*num_cmds, cmd);
+    cleanup(cmd);
     return 0;
   } else if (strcmp(cmd[*num_cmds - 1].argv[0], "mypwd") == 0) {
-    char* wd = (char*) malloc(1024);
+    char wd[1024];
     getcwd(wd, 1024);
     printf("%s\n", wd);
-    free(wd);
-    cleanup(*num_cmds, cmd);
+    cleanup(cmd);
     return 0;
   }
   
   return cmd;
 }
 
-// i have no idea if this is necessary
-void cleanup(int n, struct command* cmd) {
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < cmd[i].argc; j++) {
-      free(cmd[i].argv[j]);
-    }
-    free(cmd[i].argv);
-  }
-  free(cmd);
+void cleanup(struct command* cmd) {
+  if (cmd != NULL) 
+    free(cmd);
 }
 
 int mycd(char* dir) {
